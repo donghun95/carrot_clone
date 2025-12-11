@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}내 프로필{% endblock %}
+
+{% block content %}
+<h2>내 프로필</h2>
+
+<p>아이디: {{profile.user.username  }}</p>
+<p>닉네임: {{profile.nickname  }}</p>
+<p>동네 : {{ profile.region  }}</p>
+<p>소개 : {{ profile.bio }}</p>
+
+{% if profile.avator %}
+ <img src = "{{ profile.avatar.url}}" alt="avatar" style="max-width:150px;">
+ {% endif %}
+ {% endblock %}

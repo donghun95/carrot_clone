@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>리뷰 작성 - {{ item.title }}</h2>
+
+{% if error %}
+ <p style="color: red;"> </p>{{ error }} </p>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <p>
+        <label> 평점 (1~5):</label><br>
+        <input type ="number" name="rating" min="1" max="5" required>
+
+    </p>
+
+    <p>
+        <label>리뷰 내용:</label><br>
+        <textarea name="comment" rows="4" required></textarea>
+    </p>
+
+    <button type="submit">리뷰 남기기</button>
+</form>
+
+<p>
+    <a href="={% url 'market:item_detail' item.pk%}">← 상품으로 돌아가기 </a>
+</p>
+{% endblock %}

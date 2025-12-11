@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ itme.title }}</h2>
+
+<p>
+    <strong>상태:</strong>
+    {% if item.status == 'sale' %}
+      <span style="color:green;">판매중</span>
+    {% elif item.status == 'reserved' %}
+      <span style="color:orange;">예약중</span>
+    {% elif item.status == 'sold' %}
+      <span style="color:gray;">판매완료</span>
+    {% endif %}
+</p>
+
+{% if item.avarage_rating %}
+   <p>
+    <strong>평점:</strong> {{item.avarage_rating }} / 5
+    (리뷰 {{ item.reviews.count }}개)
+   </p>
+{% else %}
+   <p><strong>평점:</strong> 아직 리뷰가 없습니다.</p>
+{% endif %}
+
+<p>가격 : <strong>{{ item.price }}원</strong></p>
+<p>판매자: {{ item.seller.username }}</p>
+<p>등록일: {{ item.created_at }}</p>
+
+{% if item.image %}
+<p>
+    <img src ="{{ item.image.url }}" alt="상품 이미지" style="max-width: 300px;">
+</p>
+{% endif %}
+
+<p>
+  설명:<br>
+  {{ item.description|linebreaksbr}}
+</p>
+
+<p>
+    <a href="{% url 'market:item_list' %}"></a>
+</p>
+{% if request.user == item.seller%}
+<hr>
+<p>
+    <a href="{% url 'market:item_edit' item.pk %}"> 수정하기</a>
+    <a href="{% url 'market:item_delete' item.pk %}"> 삭제하기</a>
+</p>
+<p>
+    상태 변경:
+    <a href="{% url 'market:item_change_status' item.pk 'sale' %}">판매중</a>
+    <a href="{% url 'market:item_change_status' item.pk 'reserved' %}">예약중</a>
+    <a href="{% url 'market:item_change_status' item.pk 'sold' %}"> 판매완료</a>
+</p>
+{% endif %}
+{% if user.is_authenticated and user != item.seller %}
+<p>
+  <a href="{% url 'market:chat_start' item.pk %}">  판매자와 채팅하기</a>
+</p>
+{% endif %}
+
+{% if user.is_authenticated and user != item.seller and item.status == 'sold' %}
+  <p>
+    <a href="{% url 'market:review_create' item.pk %}"> 이 상품 리뷰 남기기</a>
+  </p>
+{% endif %}
+<h3>리뷰</h3>
+{% if item.reviews.all %}
+<ul>
+  {% for review in item.reviews.all %}
+    <li style="margin-bottom:10px;">
+      <strong> {{review.rating}} /5</strong>
+      - {{ review.reviewer.username }}
+      ({{ review.created_at }})<br>
+      {{ review.comment|linebreaksbr}}
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p>아직 등록된 리뷰가 없습니다.</p>
+{% endif %}
+<p>
+  <a href="{% url 'market:item_list' %}"> 목록으로 돌아가기</a> 
+</p>
+{% endblock %}

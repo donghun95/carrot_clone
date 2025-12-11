@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}중고거래 목록{% endblock %}
+{% block content %}
+<h2>
+    {% if region_filter %}
+      "{{ region_filter }}" 지역 상품 목록
+    {% elif my_list %}
+     내가 올린 상품
+    {% else %}
+    중고거래 목록
+    {% endif %}
+</h2>
+
+<p>
+    <a href="{% url 'market:item_create' %}">+ 상품 올리기</a>
+</p>
+
+<hr>
+
+{% if items %}
+   <ul>
+     {% for item in items %}
+        <li>
+            <!-- 제목을 누르면 상세 페이지로 이동 -->
+            <a href="{% url 'market:item_detail' item.pk %}">
+                {{ item.title}} - {{ item.price }} 원
+            </a>
+            {% if item.status == 'sale' %}
+                <span style="color:green;">[판매중]</span>
+            {% elif item.status == 'reserved' %}
+                <span style="color:orange;">[예약중]</span>
+            {% elif item.status == 'sold' %}
+                <span style="color:gray;">[판매완료]</span>
+            {% endif %}
+            {% if item.seller.profile.region %}
+             <small>
+                 / 지역 : {{ item.seller.profile.region}}
+             </small>
+            {% endif %}
+            <small> / 작성자: {{ item.seller.username}} / 등록일 : {{ item.created_at }}</small>
+        </li>
+        {% endfor %}
+   </ul>
+   {% else %}
+        <p>등록된 상품이 아직 없습니다. 제일 먼저 올려보세요!</p>
+    {% endif %}
+
+    {% endblock %}

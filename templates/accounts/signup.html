@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title%}회원가입{% endblock %}
+
+{% block content %}
+<h2>회원가입</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <p>
+        <label for="id_nickname">닉네임:</label>
+        <input type="text" name="nickname" id="id_nickname" required>
+    </p>
+    <p>
+        <label for="id_region">동네:</label>
+        <input type="text" name="region" id="id_region" placeholder="예 : 서울 영등포구" required>
+    </p>
+
+    <button type="submit">가입하기</button>
+</form>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>상품 수정</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>
+        <label>제목:</label><br>
+        <input type="text" name="title" value="{{ item.title }}" required>
+    </p>
+
+    <p>
+        <label>가격(원):</label><br>
+        <input type="number" name="price" value="{{ item.price }}" required>
+    </p>
+
+    <p>
+        <label>설명 :</label><br>
+        <textarea name="description" rows="5" required>{{ item.description }}</textarea>
+    </p>
+
+    <p>
+        <label> 사진 수정(선택):</label><br>
+        {% if item.image %}
+            <img src="{{ item.image.url }}" style="max-width: 150px;"><br>
+        {% endif %}
+        <input type="file" name="image">
+    </p>
+
+    <button type="submit">수정 완료</button>
+</form>
+
+<p>
+    <a href="{% url 'market:item_detail' item.pk %}">← 돌아가기</a>
+</p>
+
+{% endblock %}

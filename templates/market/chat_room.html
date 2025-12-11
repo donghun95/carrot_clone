@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>{{ room.item.title }} - 채팅방</h2>
+
+<div id="chat-log"
+     style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:scroll;">
+  {# 기존에 DB에 저장된 메시지 먼저 보여주기 #}
+  {% for msg in messages %}
+    <p>
+      <strong>{{ msg.sender.username }}</strong> : {{ msg.message }}<br>
+      <small>{{ msg.created_at }}</small>
+    </p>
+  {% empty %}
+    <p>아직 메시지가 없습니다. 첫 메시지를 보내보세요!</p>
+  {% endfor %}
+</div>
+
+{# ✅ 폼 방식 대신, 단순 input + button 으로만 둔다 #}
+<input id="chat-message-input" type="text" style="width:80%;" autocomplete="off">
+<button id="chat-message-submit">전송</button>
+
+<p>
+  <a href="{% url 'market:item_detail' room.item.pk %}">← 상품으로 돌아가기</a>
+</p>
+
+
+<script>
+  // 방 번호
+  const roomId = "{{ room.id }}";
+
+  // http / https 에 따라 ws / wss 선택
+  const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+
+  // WebSocket 연결 생성: ws://127.0.0.1:8000/ws/chat/<roomId>/
+  const chatSocket = new WebSocket(
+    wsScheme + "://" + window.location.host + "/ws/chat/" + roomId + "/"
+  );
+
+  const chatLog   = document.getElementById("chat-log");
+  const chatInput = document.getElementById("chat-message-input");
+  const chatBtn   = document.getElementById("chat-message-submit");
+
+  // 서버에서 메시지 오면 실행되는 부분 (실시간으로 화면에 추가)
+  chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const p = document.createElement("p");
+    p.innerHTML = "<strong>" + data.username + "</strong> : " + data.message;
+    chatLog.appendChild(p);
+    chatLog.scrollTop = chatLog.scrollHeight;  // 스크롤 맨 아래로
+  };
+
+  // 연결 끊겼을 때 콘솔 로그
+  chatSocket.onclose = function(e) {
+    console.error("Chat socket closed unexpectedly");
+  };
+
+  // 버튼 클릭 시 메시지 전송
+  chatBtn.onclick = function() {
+    const message = chatInput.value;
+    if (!message) return;
+
+    chatSocket.send(JSON.stringify({
+      "message": message
+    }));
+
+    chatInput.value = "";
+    chatInput.focus();
+  };
+
+  // Enter 키로도 전송 가능하게
+  chatInput.addEventListener("keyup", function(e) {
+    if (e.key === "Enter") {
+      chatBtn.click();
+    }
+  });
+</script>
+
+{% endblock %}

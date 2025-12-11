@@ -1,0 +1,23 @@
+import os
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+
+django_asgi_app = get_asgi_application()
+
+# ❗ 여기서 market.routing 을 즉시 import 하면 "Apps aren't loaded yet" 에러 발생
+# import market.routing  ← 이 줄 삭제!
+
+def get_websocket_application():
+    # Lazy import (Django 앱 로딩 완료 이후 import)
+    from market import routing
+    return URLRouter(routing.websocket_urlpatterns)
+
+application = ProtocolTypeRouter({
+    "http": django_asgi_app,
+    "websocket": AuthMiddlewareStack(
+        get_websocket_application()
+    ),
+})
